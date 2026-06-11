@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V5</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --panel: #ffffff;
+      --text: #111111;
+      --muted: #666666;
+      --line: #d0d0d0;
+      --accent: #222222;
+      --soft: #f2f2f2;
+      --soft2: #fafafa;
+      --shadow: rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.65;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 28px));
+      margin: 18px auto 48px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    .control-panel {
+      position: sticky;
+      top: 82px;
+    }
+
+    body.controls-hidden main {
+      grid-template-columns: 1fr;
+      width: min(920px, calc(100% - 28px));
+    }
+
+    body.controls-hidden .control-panel {
+      display: none;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    textarea,
+    input[type='text'] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 410px;
+      resize: vertical;
+      font-family: 'Consolas', 'Menlo', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 0;
+    }
+
+    button,
+    .file-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button.secondary,
+    .file-button.secondary {
+      background: #e5e5e5;
+      color: var(--text);
+    }
+
+    button:hover,
+    .file-button:hover {
+      filter: brightness(0.97);
+    }
+
+    input[type='file'] {
+      display: none;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 0;
+    }
+
+    .current-file {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .lesson-title {
+      margin: 0 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent);
+      color: var(--text);
+    }
+
+    .section-title {
+      margin: 24px 0 10px;
+      padding: 8px 10px;
+      background: var(--soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      font-size: 18px;
+    }
+
+    .turn {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 10px;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #dddddd;
+      background: var(--soft2);
+    }
+
+    .turn.masked-speaker {
+      background: #f7f7f7;
+    }
+
+    .speaker {
+      font-weight: 800;
+      color: #333333;
+      overflow-wrap: anywhere;
+    }
+
+    .line {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    details.answer {
+      background: #ffffff;
+      border: 1px solid #d0d0d0;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    details.answer summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--text);
+      list-style: none;
+    }
+
+    details.answer summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.answer summary::before {
+      content: '▶ ';
+    }
+
+    details.answer[open] summary::before {
+      content: '▼ ';
+    }
+
+    .answer-text {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #cfcfcf;
+      white-space: pre-wrap;
+    }
+
+    .plain-block {
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-left: 3px solid #bbbbbb;
+      background: #f7f7f7;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        position: static;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .control-panel {
+        position: static;
+      }
+
+      textarea {
+        min-height: 310px;
+      }
+
+      .turn {
+        grid-template-columns: 72px 1fr;
+      }
+    }
+
+    @media print {
+      header,
+      .control-panel {
+        display: none;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      main {
+        display: block;
+        width: 100%;
+        margin: 0;
+      }
+
+      .panel {
+        box-shadow: none;
+        border: 0;
+      }
+
+      details.answer:not([open]) .answer-text {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>V5</h1>
+    <button id="toggleControlsButton" type="button" class="secondary">入力欄を隠す</button>
+  </header>
+
+  <main>
+    <section class="panel control-panel">
+      <div class="field">
+        <label for="maskSpeaker">隠す話者名</label>
+        <input id="maskSpeaker" type="text" value="Koki" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Markdownファイル</label>
+        <label for="fileInput" class="file-button secondary">MDを開く</label>
+        <input id="fileInput" type="file" accept=".md,.markdown,text/markdown,text/plain">
+        <div id="currentFile" class="current-file">ファイル未選択</div>
+      </div>
+
+      <div class="field">
+        <label for="sourceText">Markdownをここに貼る</label>
+        <textarea id="sourceText" spellcheck="false"></textarea>
+      </div>
+
+      <div class="buttons">
+        <button id="renderButton" type="button">練習ページを作る</button>
+        <button id="openAllButton" type="button" class="secondary">全部開く</button>
+        <button id="closeAllButton" type="button" class="secondary">全部閉じる</button>
+        <button id="printButton" type="button" class="secondary">印刷</button>
+        <button id="copyHtmlButton" type="button" class="secondary">表示HTMLをコピー</button>
+        <button id="clearButton" type="button" class="secondary">入力を消す</button>
+      </div>
+
+      <p class="small-note">
+        対応しやすい形：<br>
+        <code>Karen: ...</code><br>
+        <code>Koki: ...</code><br>
+        <code>**Karen:** ...</code><br>
+        <code>**Koki: ** ...</code>
+      </p>
+      <p id="status" class="status"></p>
+    </section>
+
+    <section class="panel practice-panel">
+      <div id="output"></div>
+    </section>
+  </main>
+
+  <script>
+    const sampleMarkdown = `# Level 2 Rank C Lesson 4
+
+## 0:00-3:00 Warm-up
+Karen: Hi, Koki. How are you today?
+Koki: I'm good, thank you. How about you?
+Karen: I'm good, too. Are you ready for today's lesson?
+Koki: Yes, I'm ready.
+
+## ACT Role Play
+Karen: So, shall we start our meeting?
+Koki: Sure. Before we begin, I'd like to go over today's agenda briefly.
+Karen: Sure, go ahead.
+Koki: First, I'd like to spend 10 minutes sharing the background. Then, we'll spend 20 minutes discussing the issue. Finally, we'll use the last 10 minutes to decide the next actions.
+Karen: That sounds good.
+Koki: Great. Does this agenda work for you?`;
+
+    const sourceText = document.getElementById('sourceText');
+    const maskSpeaker = document.getElementById('maskSpeaker');
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    const toggleControlsButton = document.getElementById('toggleControlsButton');
+    const fileInput = document.getElementById('fileInput');
+    const currentFile = document.getElementById('currentFile');
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('\\'', '&#039;');
+    }
+
+    function normalizeSpeaker(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function cleanDialogueText(value) {
+      return value
+        .replace(/^\s*\*\*\s*/, '')
+        .replace(/\s*\*\*\s*$/, '')
+        .trim();
+    }
+
+    function parseTurnLine(line) {
+      let normalizedLine = line.trim();
+      normalizedLine = normalizedLine.replace(/^(?:[-+]\s+|\*\s+)/, '');
+
+      const patterns = [
+        /^\*\*\s*([^:*_\n]{1,40})\s*:\s*\*\*\s*(.*)$/,
+        /^\*\*\s*([^:*_\n]{1,40})\s*:\s+\*\*\s*(.*)$/,
+        /^__\s*([^:_*\n]{1,40})\s*:\s*__\s*(.*)$/,
+        /^([^:*_#`<>\[\]{}\n][^:\n]{0,39})\s*:\s*(.*)$/,
+      ];
+
+      for (const pattern of patterns) {
+        const match = normalizedLine.match(pattern);
+        if (match) {
+          return {
+            speaker: match[1].trim().replace(/\*\*|__/g, '').trim(),
+            text: cleanDialogueText(match[2]),
+          };
+        }
+      }
+      return null;
+    }
+
+    function parseMarkdown(text) {
+      const lines = text.replaceAll('\r\n', '\n').split('\n');
+      const blocks = [];
+      let currentTurn = null;
+      let currentPlain = [];
+
+      function flushTurn() {
+        if (currentTurn) {
+          blocks.push(currentTurn);
+          currentTurn = null;
+        }
+      }
+
+      function flushPlain() {
+        const content = currentPlain.join('\n').trim();
+        if (content) {
+          blocks.push({
+            type: 'plain',
+            text: content,
+          });
+        }
+        currentPlain = [];
+      }
+
+      for (const line of lines) {
+        const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+        const turn = parseTurnLine(line);
+
+        if (headingMatch) {
+          flushTurn();
+          flushPlain();
+          blocks.push({
+            type: 'heading',
+            level: headingMatch[1].length,
+            text: headingMatch[2].trim(),
+          });
+          continue;
+        }
+
+        if (turn) {
+          flushTurn();
+          flushPlain();
+          currentTurn = {
+            type: 'turn',
+            speaker: turn.speaker,
+            text: turn.text,
+          };
+          continue;
+        }
+
+        if (line.trim() === '') {
+          flushTurn();
+          flushPlain();
+          continue;
+        }
+
+        if (currentTurn) {
+          currentTurn.text += `\n${cleanDialogueText(line)}`;
+        } else {
+          currentPlain.push(line);
+        }
+      }
+
+      flushTurn();
+      flushPlain();
+      return blocks;
+    }
+
+    function render() {
+      const text = sourceText.value.trim();
+      const target = normalizeSpeaker(maskSpeaker.value || 'Koki');
+
+      if (!text) {
+        output.innerHTML = '<p class="small-note">Markdownを貼るか、MDファイルを開いてください。</p>';
+        status.textContent = '';
+        return;
+      }
+
+      const blocks = parseMarkdown(text);
+      let maskedCount = 0;
+
+      const html = blocks.map((block) => {
+        if (block.type === 'heading') {
+          const safeText = escapeHtml(block.text);
+          if (block.level === 1) {
+            return `<h2 class="lesson-title">${safeText}</h2>`;
+          }
+          return `<h3 class="section-title">${safeText}</h3>`;
+        }
+
+        if (block.type === 'plain') {
+          return `<div class="plain-block">${escapeHtml(block.text)}</div>`;
+        }
+
+        const safeSpeaker = escapeHtml(block.speaker);
+        const safeText = escapeHtml(block.text || '');
+        const isMasked = normalizeSpeaker(block.speaker) === target;
+
+        if (isMasked) {
+          maskedCount += 1;
+          return `
+            <div class="turn masked-speaker">
+              <div class="speaker">${safeSpeaker}</div>
+              <div>
+                <details class="answer">
+                  <summary>show</summary>
+                  <div class="answer-text">${safeText}</div>
+                </details>
+              </div>
+            </div>`;
+        }
+
+        return `
+          <div class="turn visible-speaker">
+            <div class="speaker">${safeSpeaker}</div>
+            <p class="line">${safeText}</p>
+          </div>`;
+      }).join('');
+
+      output.innerHTML = html;
+      status.textContent = `${maskedCount}個の「${maskSpeaker.value || 'Koki'}」発話を隠しました。`;
+      localStorage.setItem('lesson-mask-source', sourceText.value);
+      localStorage.setItem('lesson-mask-speaker', maskSpeaker.value || 'Koki');
+    }
+
+    function setAllDetails(open) {
+      document.querySelectorAll('details.answer').forEach((details) => {
+        details.open = open;
+      });
+    }
+
+    async function copyRenderedHtml() {
+      const html = output.innerHTML;
+      if (!html.trim()) {
+        status.textContent = '先に練習ページを作ってください。';
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(html);
+        status.textContent = '表示部分のHTMLをコピーしました。';
+      } catch (error) {
+        status.textContent = 'コピーできませんでした。';
+      }
+    }
+
+    function clearInput() {
+      if (!confirm('入力欄を消しますか？')) {
+        return;
+      }
+      sourceText.value = '';
+      currentFile.textContent = 'ファイル未選択';
+      localStorage.removeItem('lesson-mask-source');
+      localStorage.removeItem('lesson-mask-file-name');
+      render();
+    }
+
+    function applyControlVisibility(hidden) {
+      document.body.classList.toggle('controls-hidden', hidden);
+      toggleControlsButton.textContent = hidden ? '入力欄を表示' : '入力欄を隠す';
+      localStorage.setItem('lesson-mask-controls-hidden', hidden ? 'true' : 'false');
+    }
+
+    function toggleControls() {
+      applyControlVisibility(!document.body.classList.contains('controls-hidden'));
+    }
+
+    function readSelectedFile() {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        sourceText.value = String(reader.result || '');
+        currentFile.textContent = file.name;
+        localStorage.setItem('lesson-mask-file-name', file.name);
+        render();
+      };
+      reader.onerror = () => {
+        status.textContent = 'ファイルを読み込めませんでした。';
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    document.getElementById('renderButton').addEventListener('click', render);
+    document.getElementById('openAllButton').addEventListener('click', () => setAllDetails(true));
+    document.getElementById('closeAllButton').addEventListener('click', () => setAllDetails(false));
+    document.getElementById('printButton').addEventListener('click', () => window.print());
+    document.getElementById('copyHtmlButton').addEventListener('click', copyRenderedHtml);
+    document.getElementById('clearButton').addEventListener('click', clearInput);
+    toggleControlsButton.addEventListener('click', toggleControls);
+    fileInput.addEventListener('change', readSelectedFile);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      sourceText.value = localStorage.getItem('lesson-mask-source') || sampleMarkdown;
+      maskSpeaker.value = localStorage.getItem('lesson-mask-speaker') || 'Koki';
+      currentFile.textContent = localStorage.getItem('lesson-mask-file-name') || 'ファイル未選択';
+      applyControlVisibility(localStorage.getItem('lesson-mask-controls-hidden') === 'true');
+      render();
+    });
+  </script>
+</body>
+</html>
