@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>V6</title>
+  <title>V7</title>
   <style>
     :root {
       --bg: #f5f5f5;
@@ -303,7 +303,7 @@
 </head>
 <body>
   <header>
-    <h1>V6</h1>
+    <h1>V7</h1>
     <button id="toggleControlsButton" type="button" class="secondary">入力欄を隠す</button>
   </header>
 
@@ -376,12 +376,12 @@ Koki: Great. Does this agenda work for you?`;
     const currentFile = document.getElementById('currentFile');
 
     function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
     }
 
     function normalizeSpeaker(value) {
@@ -488,8 +488,8 @@ Koki: Great. Does this agenda work for you?`;
 
     function render() {
       try {
-      const text = sourceText.value.trim();
-      const target = normalizeSpeaker(maskSpeaker.value || 'Koki');
+        const text = sourceText.value.trim();
+        const target = normalizeSpeaker(maskSpeaker.value || 'Koki');
 
       if (!text) {
         output.innerHTML = '<p class="small-note">Markdownを貼るか、MDファイルを開いてください。</p>';
@@ -524,7 +524,7 @@ Koki: Great. Does this agenda work for you?`;
               <div class="speaker">${safeSpeaker}</div>
               <div>
                 <details class="answer">
-                  <summary>show</summary>
+                  <summary>模範例を見る</summary>
                   <div class="answer-text">${safeText}</div>
                 </details>
               </div>
@@ -539,10 +539,9 @@ Koki: Great. Does this agenda work for you?`;
       }).join('');
 
       output.innerHTML = html;
-      status.textContent = `${maskedCount}個の「${maskSpeaker.value || 'Koki'}」発話を隠しました。`;
-      localStorage.setItem('lesson-mask-source', sourceText.value);
-      localStorage.setItem('lesson-mask-speaker', maskSpeaker.value || 'Koki');
-    }
+        status.textContent = `${maskedCount}個の「${maskSpeaker.value || 'Koki'}」発話を隠しました。`;
+        localStorage.setItem('lesson-mask-source', sourceText.value);
+        localStorage.setItem('lesson-mask-speaker', maskSpeaker.value || 'Koki');
       } catch (error) {
         console.error(error);
         output.innerHTML = '<p class="small-note">表示中にエラーが出ました。index.htmlが最新か確認してください。</p>';
