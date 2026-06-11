@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>V5</title>
+  <title>V6</title>
   <style>
     :root {
       --bg: #f5f5f5;
@@ -303,7 +303,7 @@
 </head>
 <body>
   <header>
-    <h1>V5</h1>
+    <h1>V6</h1>
     <button id="toggleControlsButton" type="button" class="secondary">入力欄を隠す</button>
   </header>
 
@@ -376,16 +376,16 @@ Koki: Great. Does this agenda work for you?`;
     const currentFile = document.getElementById('currentFile');
 
     function escapeHtml(value) {
-      return value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll('\\'', '&#039;');
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function normalizeSpeaker(value) {
-      return value.trim().toLowerCase();
+      return String(value ?? '').trim().toLowerCase();
     }
 
     function cleanDialogueText(value) {
@@ -487,6 +487,7 @@ Koki: Great. Does this agenda work for you?`;
     }
 
     function render() {
+      try {
       const text = sourceText.value.trim();
       const target = normalizeSpeaker(maskSpeaker.value || 'Koki');
 
@@ -541,6 +542,12 @@ Koki: Great. Does this agenda work for you?`;
       status.textContent = `${maskedCount}個の「${maskSpeaker.value || 'Koki'}」発話を隠しました。`;
       localStorage.setItem('lesson-mask-source', sourceText.value);
       localStorage.setItem('lesson-mask-speaker', maskSpeaker.value || 'Koki');
+    }
+      } catch (error) {
+        console.error(error);
+        output.innerHTML = '<p class="small-note">表示中にエラーが出ました。index.htmlが最新か確認してください。</p>';
+        status.textContent = '表示中にエラーが出ました。';
+      }
     }
 
     function setAllDetails(open) {
@@ -612,6 +619,15 @@ Koki: Great. Does this agenda work for you?`;
     document.getElementById('clearButton').addEventListener('click', clearInput);
     toggleControlsButton.addEventListener('click', toggleControls);
     fileInput.addEventListener('change', readSelectedFile);
+
+    let renderTimer = null;
+    function scheduleRender() {
+      window.clearTimeout(renderTimer);
+      renderTimer = window.setTimeout(render, 150);
+    }
+
+    sourceText.addEventListener('input', scheduleRender);
+    maskSpeaker.addEventListener('input', scheduleRender);
 
     window.addEventListener('DOMContentLoaded', () => {
       sourceText.value = localStorage.getItem('lesson-mask-source') || sampleMarkdown;
